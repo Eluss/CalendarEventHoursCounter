@@ -12,9 +12,9 @@
    self.window = [[UIWindow alloc] initWithFrame:frame];
 
   ViewController* initialViewController = [ViewController new];
-  initialViewController.view.backgroundColor = [UIColor greenColor];
 
-  self.window.rootViewController = initialViewController;
+    initialViewController.view.backgroundColor = [UIColor whiteColor];
+    self.window.rootViewController = initialViewController;
   [self.window makeKeyAndVisible];
   return YES;
 }

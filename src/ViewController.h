@@ -2,7 +2,7 @@
 
 @class EKEventStore;
 
-@interface ViewController : UIViewController
+@interface ViewController : UIViewController <UIPickerViewDelegate, UIPickerViewDataSource>
 
 @property(nonatomic, strong) EKEventStore *store;
 @end
