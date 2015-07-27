@@ -15,4 +15,6 @@
 - (NSArray *)eventsFromCalendar:(EKCalendar *)calendar fromDate:(NSDate *)fromDate toDate:(NSDate *)toDate;
 
 - (NSTimeInterval)durationOfEventsInCalendar:(EKCalendar *)calendar fromDate:(NSDate *)fromDate toDate:(NSDate *)toDate;
+
+- (NSInteger)workingDaysBetweenStartDate:(NSDate *)startDate andEndDate:(NSDate *)endDate;
 @end

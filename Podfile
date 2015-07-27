@@ -4,6 +4,7 @@ inhibit_all_warnings!
 
 target 'Events' do
 
-  pod 'PureLayout' 
+  pod 'PureLayout'
+  pod 'DateTools'
 
 end

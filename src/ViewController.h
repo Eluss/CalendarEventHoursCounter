@@ -4,5 +4,4 @@
 
 @interface ViewController : UIViewController <UIPickerViewDelegate, UIPickerViewDataSource>
 
-@property(nonatomic, strong) EKEventStore *store;
 @end

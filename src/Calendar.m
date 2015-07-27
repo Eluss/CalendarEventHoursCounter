@@ -3,6 +3,7 @@
 //
 
 #import "Calendar.h"
+#import "NSDate+DateTools.h"
 #import <EventKit/EventKit.h>
 
 
@@ -34,8 +35,9 @@
 }
 
 - (NSArray *)eventsFromCalendar:(EKCalendar *)calendar fromDate:(NSDate *)fromDate toDate:(NSDate *)toDate {
+    NSDate *endDate = [toDate dateByAddingDays:1];
     NSPredicate *predicate = [_eventStore predicateForEventsWithStartDate:fromDate
-                                                                  endDate:toDate
+                                                                  endDate:endDate
                                                                 calendars:@[calendar]];
 
     NSArray *events = [_eventStore eventsMatchingPredicate:predicate];
@@ -56,6 +58,31 @@
     }
 
     return sum;
+}
+
+- (NSInteger)workingDaysBetweenStartDate:(NSDate *)startDate andEndDate:(NSDate *)endDate {
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+
+    NSDateComponents *components;
+    NSTimeInterval timeBetweenDates = [endDate timeIntervalSinceDate:startDate];
+    NSInteger daysBetween = (NSInteger) (timeBetweenDates / (60 * 60 * 24));
+
+    components = [calendar components:NSWeekdayCalendarUnit fromDate:startDate];
+    NSInteger firstWeekday = [components weekday];
+    NSLog(@"first weekday %d", firstWeekday);
+    NSInteger workingDays = 0;
+    for (NSInteger i = 0; i <= daysBetween; i++) {
+        firstWeekday = firstWeekday % 8;
+        if (firstWeekday == 0) {
+            firstWeekday = 1;
+        }
+        if (firstWeekday != 1 && firstWeekday != 7) {
+            workingDays++;
+        }
+        firstWeekday++;
+    }
+
+    return workingDays;
 }
 
 @end

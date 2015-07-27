@@ -3,9 +3,9 @@
 #import "ALView+PureLayout.h"
 #import <EventKit/EventKit.h>
 
-@interface ViewController ()
 
-@end
+#define SMALL_FONT_SIZE 20
+#define HUGE_FONT_SIZE 60
 
 @implementation ViewController {
     NSArray *_availableCalendars;
@@ -17,6 +17,7 @@
     UITextField *_endDateTextField;
     UITextField *_calendarTextField;
     Calendar *_calendar;
+    UILabel *_maxHoursLabel;
 }
 
 
@@ -40,8 +41,8 @@
 }
 
 - (void)setupView {
-    UIFont *standardFont = [UIFont fontWithName:@"Helvetica" size:20];
-    UIFont *hugeFont = [UIFont fontWithName:@"Helvetica" size:60];
+    UIFont *standardFont = [UIFont fontWithName:@"Helvetica" size:SMALL_FONT_SIZE];
+    UIFont *hugeFont = [UIFont fontWithName:@"Helvetica" size:HUGE_FONT_SIZE];
     _calendar = [Calendar new];
     _availableCalendars = [_calendar availableCalendars];
 
@@ -55,53 +56,32 @@
     _calendarPickerView.dataSource = self;
     _calendarPickerView.delegate = self;
 
-    _startDateTextField = [UITextField new];
-    _startDateTextField.font = standardFont;
+    _startDateTextField = [self createTextField:_startDatePicker placeholder:@"starts..." toolbar:[self toolbarForStartDate]];
     [self.view addSubview:_startDateTextField];
-    _startDateTextField.placeholder = @"starts...";
-    _startDateTextField.inputView = _startDatePicker;
-    _startDateTextField.inputAccessoryView = [self toolbarForStartDate];
 
-    _endDateTextField = [UITextField new];
-    _endDateTextField.font = standardFont;
+    _endDateTextField = [self createTextField:_endDatePicker placeholder:@"ends..." toolbar:[self toolbarForEndDate]];
     [self.view addSubview:_endDateTextField];
-    _endDateTextField.placeholder = @"ends....";
-    _endDateTextField.inputView = _endDatePicker;
-    _endDateTextField.inputAccessoryView = [self toolbarForEndDate];
 
-    _calendarTextField = [UITextField new];
-    _calendarTextField.font = standardFont;
+    _calendarTextField = [self createTextField:_calendarPickerView placeholder:@"calendar..." toolbar:[self toolbarForCalendars]];
     [self.view addSubview:_calendarTextField];
-    _calendarTextField.placeholder = @"calendar...";
-    _calendarTextField.inputView = _calendarPickerView;
-    _calendarTextField.inputAccessoryView = [self toolbarForCalendars];
 
-    UIButton *countButton = [UIButton new];
+    UIButton *countButton = [self createCountButton];
     [self.view addSubview:countButton];
-    [countButton setTitle:@"Count" forState:UIControlStateNormal];
-    [countButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    [countButton addTarget:self action:@selector(countTime) forControlEvents:UIControlEventTouchUpInside];
 
-    _resultLabel = [UILabel new];
+    _resultLabel = [self createLabelWithFont:hugeFont text:@"0:00"];
     [self.view addSubview:_resultLabel];
-    _resultLabel.font = hugeFont;
-    _resultLabel.text = @"0:0";
 
-    UILabel *calendarNameLabel = [UILabel new];
-    calendarNameLabel.font = standardFont;
+    _maxHoursLabel = [self createLabelWithFont:hugeFont text:@"0:00"];
+    [self.view addSubview:_maxHoursLabel];
+
+    UILabel *calendarNameLabel = [self createLabelWithFont:standardFont text:@"Calendar name:"];
     [self.view addSubview:calendarNameLabel];
-    calendarNameLabel.text = @"Calendar name:";
 
-    UILabel *startDateLabel = [UILabel new];
-    startDateLabel.font = standardFont;
+    UILabel *startDateLabel = [self createLabelWithFont:standardFont text:@"Start date:"];
     [self.view addSubview:startDateLabel];
-    startDateLabel.text = @"Start date:";
 
-    UILabel *endDateLabel = [UILabel new];
-    endDateLabel.font = standardFont;
+    UILabel *endDateLabel = [self createLabelWithFont:standardFont text:@"End date:"];
     [self.view addSubview:endDateLabel];
-    endDateLabel.text = @"End date:";
-
 
     [calendarNameLabel autoPinEdgeToSuperviewEdge:ALEdgeLeft];
     [calendarNameLabel autoPinEdgeToSuperviewEdge:ALEdgeTop withInset:50];
@@ -130,17 +110,65 @@
     [_resultLabel autoAlignAxis:ALAxisVertical toSameAxisOfView:self.view];
     [_resultLabel autoPinEdge:ALEdgeTop toEdge:ALEdgeBottom ofView:countButton withOffset:25];
 
+    [_maxHoursLabel autoAlignAxis:ALAxisVertical toSameAxisOfView:self.view];
+    [_maxHoursLabel autoPinEdge:ALEdgeTop toEdge:ALEdgeBottom ofView:_resultLabel withOffset:25];
 
+    UILabel *eventHoursLabel = [self createLabelWithFont:standardFont text:@"Event:"];
+    [self.view addSubview:eventHoursLabel];
+    UILabel *maxLabel = [self createLabelWithFont:standardFont text:@"Max:"];
+    [self.view addSubview:maxLabel];
+
+    [eventHoursLabel autoPinEdgeToSuperviewEdge:ALEdgeLeft];
+    [eventHoursLabel autoAlignAxis:ALAxisHorizontal toSameAxisOfView:_resultLabel];
+
+    [maxLabel autoPinEdgeToSuperviewEdge:ALEdgeLeft];
+    [maxLabel autoAlignAxis:ALAxisHorizontal toSameAxisOfView:_maxHoursLabel];
+}
+
+- (UILabel *)createLabelWithFont:(UIFont *)font text:(NSString *)text {
+    UILabel *label = [UILabel new];
+    label.font = font;
+    label.text = text;
+    return label;
+}
+
+- (UIButton *)createCountButton {
+    UIButton *countButton = [UIButton new];
+    [countButton setTitle:@"Count" forState:UIControlStateNormal];
+    [countButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [countButton addTarget:self action:@selector(countTime) forControlEvents:UIControlEventTouchUpInside];
+    return countButton;
+}
+
+- (UITextField *)createTextField:(UIPickerView *)picker placeholder:(NSString *)placeholder toolbar:(UIToolbar *)toolbar {
+    UIFont *standardFont = [UIFont fontWithName:@"Helvetica" size:SMALL_FONT_SIZE];
+    UITextField *textField = [UITextField new];
+    textField.font = standardFont;
+    textField.placeholder = placeholder;
+    textField.inputView = picker;
+    textField.inputAccessoryView = toolbar;
+    return textField;
 }
 
 
-
-
 - (UIToolbar *)toolbarForStartDate {
-    UIToolbar *myToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
-    UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-                                                                                target:self action:@selector(didSelectStartDate)];
+    return [self createToolbarWithButtonSelector:@selector(didSelectStartDate)];
+}
 
+- (UIToolbar *)toolbarForEndDate {
+    return [self createToolbarWithButtonSelector:@selector(didSelectEndDate)];
+
+}
+
+- (UIToolbar *)toolbarForCalendars {
+    return [self createToolbarWithButtonSelector:@selector(didSelectCalendar)];
+}
+
+- (UIToolbar *)createToolbarWithButtonSelector:(SEL)selector {
+    CGFloat width = [UIApplication sharedApplication].delegate.window.frame.size.width;
+    UIToolbar *myToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, width, 44)];
+    UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                                                                                target:self action:selector];
     [myToolbar setItems:@[doneButton] animated:NO];
     return myToolbar;
 }
@@ -153,30 +181,12 @@
     _startDateTextField.text = [formatter stringFromDate:pickedDate];
 }
 
-- (UIToolbar *)toolbarForEndDate {
-    UIToolbar *myToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
-    UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-                                                                                target:self action:@selector(didSelectEndDate)];
-
-    [myToolbar setItems:@[doneButton] animated:NO];
-    return myToolbar;
-}
-
 - (void)didSelectEndDate {
     [_endDateTextField resignFirstResponder];
     NSDate *pickedDate = _endDatePicker.date;
     NSDateFormatter *formatter = [NSDateFormatter new];
     formatter.dateFormat = @"yyyy/MM/dd";
     _endDateTextField.text = [formatter stringFromDate:pickedDate];
-}
-
-- (UIToolbar *)toolbarForCalendars {
-    UIToolbar *myToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
-    UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-                                                                                target:self action:@selector(didSelectCalendar)];
-
-    [myToolbar setItems:@[doneButton] animated:NO];
-    return myToolbar;
 }
 
 - (void)didSelectCalendar {
@@ -196,7 +206,16 @@
     NSInteger hours = (NSInteger) (timeInterval / 3600);
     NSInteger minutes = (NSInteger) ((timeInterval - hours * 3600) / 60);
 
-    _resultLabel.text = [NSString stringWithFormat:@"%d:%d", hours, minutes];
+    if (minutes < 10) {
+        _resultLabel.text = [NSString stringWithFormat:@"%d:0%d", hours, minutes];
+
+    } else {
+        _resultLabel.text = [NSString stringWithFormat:@"%d:%d", hours, minutes];
+    }
+
+    NSInteger workingDays = [_calendar workingDaysBetweenStartDate:startDate andEndDate:endDate];
+
+    _maxHoursLabel.text = [NSString stringWithFormat:@"%d:00", workingDays * 8];
 }
 
 

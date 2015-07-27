@@ -8,15 +8,15 @@
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-   CGRect frame = UIScreen.mainScreen.bounds;
-   self.window = [[UIWindow alloc] initWithFrame:frame];
+    CGRect frame = UIScreen.mainScreen.bounds;
+    self.window = [[UIWindow alloc] initWithFrame:frame];
 
-  ViewController* initialViewController = [ViewController new];
+    ViewController *initialViewController = [ViewController new];
 
     initialViewController.view.backgroundColor = [UIColor whiteColor];
     self.window.rootViewController = initialViewController;
-  [self.window makeKeyAndVisible];
-  return YES;
+    [self.window makeKeyAndVisible];
+    return YES;
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
