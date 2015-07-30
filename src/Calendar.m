@@ -35,9 +35,10 @@
 }
 
 - (NSArray *)eventsFromCalendar:(EKCalendar *)calendar fromDate:(NSDate *)fromDate toDate:(NSDate *)toDate {
-    NSDate *endDate = [toDate dateByAddingDays:1];
-    NSPredicate *predicate = [_eventStore predicateForEventsWithStartDate:fromDate
-                                                                  endDate:endDate
+    NSDate *newStartDate = [[fromDate dateBySubtractingHours:fromDate.hour] dateByAddingMinutes:fromDate.minute];
+    NSDate *newEndDate = [[toDate dateByAddingHours:24 - toDate.hour] dateByAddingMinutes:59 - toDate.minute];
+    NSPredicate *predicate = [_eventStore predicateForEventsWithStartDate:newStartDate
+                                                                  endDate:newEndDate
                                                                 calendars:@[calendar]];
 
     NSArray *events = [_eventStore eventsMatchingPredicate:predicate];
@@ -53,7 +54,6 @@
         NSDate *startDate = event.startDate;
         NSDate *endDate = event.endDate;
         NSTimeInterval timeInterval = [endDate timeIntervalSinceDate:startDate];
-
         sum += timeInterval;
     }
 
@@ -69,7 +69,6 @@
 
     components = [calendar components:NSWeekdayCalendarUnit fromDate:startDate];
     NSInteger firstWeekday = [components weekday];
-    NSLog(@"first weekday %d", firstWeekday);
     NSInteger workingDays = 0;
     for (NSInteger i = 0; i <= daysBetween; i++) {
         firstWeekday = firstWeekday % 8;
